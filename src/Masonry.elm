@@ -8,6 +8,7 @@ module Masonry exposing
     , viewList
     , Msg
     , update
+    , done
     , Id
     , getHeight
     )
@@ -35,6 +36,7 @@ element height into account so all columns are about the same length.
 
 @docs Msg
 @docs update
+@docs done
 
 
 # Height
@@ -138,6 +140,29 @@ ordered from left to right regardless of their height.
 viewList : Config a msg -> List a -> Html msg
 viewList { columns, toView } =
     viewColumns toView Nothing << toColumns columns << Tuple.first << init Nothing
+
+
+{-| Masonry has finished rearranging items.
+-}
+done : Masonry a -> Bool
+done (Masonry { heights, items }) =
+    let
+        missing ( Id id, _ ) =
+            case Dict.get id heights of
+                Nothing ->
+                    True
+
+                Just (Average _) ->
+                    True
+
+                Just (Known _) ->
+                    False
+    in
+    if List.isEmpty items then
+        False
+
+    else
+        not (List.any missing items)
 
 
 
